@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
-using BepInEx.Logging;
 using System.Reflection;
 using BepInEx.Configuration;
 using Comfort.Common;
@@ -99,7 +98,7 @@ public class Plugin : BaseUnityPlugin
     
     private static ConfigEntry<string> AddCaliberToConfig(string caliber)
     {
-        var caliberName = DefaultCaliberMap.GetValueOrDefault(caliber, caliber);
+        var caliberName = DefaultCaliberMap.GetValueOrDefault(caliber, "");
 
         return _instance.Config.Bind(
             "2. Caliber Names", caliber, caliberName,
@@ -127,7 +126,21 @@ public class Plugin : BaseUnityPlugin
     
     public static string GetCaliberFromConfig(string caliber)
     {
-        return CaliberConfigs.TryGetValue(caliber, out var config) ? config.Value : caliber;
+        return CaliberConfigs.TryGetValue(caliber, out var config) ? config.Value : "";
+    }
+    
+    public static string GetCaliberKey(Item item)
+    {
+        if (item is AmmoItemClass ammo)
+            return ammo.AmmoTemplate.Caliber;
+
+        if (item is AmmoBox ammoBox)
+        {
+            var first = ammoBox.Cartridges?.Items?.FirstOrDefault() as AmmoItemClass;
+            return first?.AmmoTemplate.Caliber;
+        }
+
+        return null;
     }
 }
 public class CaliberInShortNamePatch : ModulePatch
@@ -142,21 +155,21 @@ public class CaliberInShortNamePatch : ModulePatch
     [PatchPostfix]
     public static void Postfix(GridItemView __instance, ref string __result)
     {
-        if (__instance.Item is not AmmoItemClass ammo) return;
+        var caliberKey = Plugin.GetCaliberKey(__instance.Item);
+        if (caliberKey == null) return;
         
         Plugin.CheckCalibers();
 
+        var caliberName = Plugin.GetCaliberFromConfig(caliberKey);
+        if (string.IsNullOrEmpty(caliberName)) return;
+        
         var caption = (TextMeshProUGUI) CaptionField.GetValue(__instance);
         if (caption == null) return;
 
         var maxWidth = caption.rectTransform.rect.width;
-        
         if (maxWidth <= 0f) return;
 
         __result = RemoveMarks(__result);
-
-        var caliber = ammo.AmmoTemplate.Caliber;
-        var caliberName = Plugin.GetCaliberFromConfig(caliber);
 
         var truncResult = TruncateToFit(caption, __result, maxWidth);
         var truncCalName = TruncateToFit(caption, caliberName, maxWidth);
@@ -185,8 +198,7 @@ public class CaliberInShortNamePatch : ModulePatch
 
     private static string RemoveMarks(string text)
     {
-        if (!Plugin.StripValueMarks.Value || string.IsNullOrEmpty(text))
-            return text;
+        if (!Plugin.StripValueMarks.Value || string.IsNullOrEmpty(text)) return text;
 
         var marks = Plugin.ValueMarksToStrip.Value;
 
@@ -211,17 +223,14 @@ public class CaptionMaxLinesPatch : ModulePatch
     public static void Postfix(GridItemView __instance)
     {
         var caption = (TextMeshProUGUI) CaptionField.GetValue(__instance);
-        if (caption == null)
-        {
-            return;
-        }
+        if (caption == null) return;
 
-        if (_defaultSizeDeltaY == 0f)
-        {
-            _defaultSizeDeltaY = caption.rectTransform.sizeDelta.y;
-        }
+        if (_defaultSizeDeltaY == 0f) _defaultSizeDeltaY = caption.rectTransform.sizeDelta.y;
 
-        if (__instance.Item is AmmoItemClass)
+        var caliberKey = Plugin.GetCaliberKey(__instance.Item);
+        var hasCaliber = caliberKey != null && !string.IsNullOrEmpty(Plugin.GetCaliberFromConfig(caliberKey));
+        
+        if (hasCaliber)
         {
             caption.enableWordWrapping = false;
             caption.overflowMode = TextOverflowModes.Overflow;
