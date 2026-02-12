@@ -36,12 +36,6 @@
   <ItemGroup>
     <Reference Include="0Harmony" />
     <Reference Include="BepInEx" />
-    <Reference Include="UnityEngine.TextCoreFontEngineModule">
-      <HintPath>..\EscapeFromTarkov_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>..\EscapeFromTarkov_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +52,8 @@
     <Reference Include="UnityEngine.CoreModule" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityEngine.UI" />
+    <Reference Include="UnityEngine.TextCoreFontEngineModule" />
+    <Reference Include="UnityEngine.UIModule" />
     <Reference Include="Sirenix.Serialization" />
   </ItemGroup>
 
