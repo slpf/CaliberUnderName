@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <SPTRefDir>..</SPTRefDir>
+    <SPTRefDir>../..</SPTRefDir>
     
     <AssemblySearchPaths>
       $(SPTRefDir)/BepInEx/core;
@@ -55,11 +55,12 @@
     <Reference Include="UnityEngine.TextCoreFontEngineModule" />
     <Reference Include="UnityEngine.UIModule" />
     <Reference Include="Sirenix.Serialization" />
+    <Reference Include="UnityEngine.InputLegacyModule"/>
   </ItemGroup>
 
   <Target Name="CopyToBuildFolder" AfterTargets="Build">
     <PropertyGroup>
-      <DestDir>$(MSBuildProjectDirectory)\build\BepInEx\plugins\</DestDir>
+      <DestDir>$(MSBuildProjectDirectory)\..\build\BepInEx\plugins\</DestDir>
     </PropertyGroup>
     <MakeDir Directories="$(DestDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DestDir)" SkipUnchangedFiles="true" />
