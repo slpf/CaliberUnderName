@@ -13,15 +13,15 @@ using UnityEngine;
 
 [assembly: AssemblyProduct("Caliber Under Name")]
 [assembly: AssemblyTitle("Caliber Under Name")]
-[assembly: AssemblyDescription("Adds a caliber label below the short name for ammo")]
+[assembly: AssemblyDescription("Adds a caliber label below the short name for ammo & ammo boxes")]
 [assembly: AssemblyCopyright("SLPF")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.0")]
+[assembly: AssemblyVersion("1.0.1")]
+[assembly: AssemblyFileVersion("1.0.1")]
+[assembly: AssemblyInformationalVersion("1.0.1")]
 
 namespace CaliberUnderName;
 
-[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.0.0")]
+[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.0.1")]
 public class Plugin : BaseUnityPlugin
 {
     private static Plugin _instance;
@@ -155,6 +155,8 @@ public class CaliberInShortNamePatch : ModulePatch
     [PatchPostfix]
     public static void Postfix(GridItemView __instance, ref string __result)
     {
+        if (__instance.GetType() != typeof(GridItemView)) return;
+        
         var caliberKey = Plugin.GetCaliberKey(__instance.Item);
         if (caliberKey == null) return;
         
@@ -211,8 +213,6 @@ public class CaliberInShortNamePatch : ModulePatch
 public class CaptionMaxLinesPatch : ModulePatch
 {
     private static readonly FieldInfo CaptionField = AccessTools.Field(typeof(GridItemView), "Caption");
-    
-    private static float _defaultSizeDeltaY = 0f;
 
     protected override MethodBase GetTargetMethod()
     {
@@ -222,29 +222,25 @@ public class CaptionMaxLinesPatch : ModulePatch
     [PatchPostfix]
     public static void Postfix(GridItemView __instance)
     {
+        if (__instance.GetType() != typeof(GridItemView)) return;
+        
+        Plugin.CheckCalibers();
+        
         var caption = (TextMeshProUGUI) CaptionField.GetValue(__instance);
         if (caption == null) return;
-
-        if (_defaultSizeDeltaY == 0f) _defaultSizeDeltaY = caption.rectTransform.sizeDelta.y;
 
         var caliberKey = Plugin.GetCaliberKey(__instance.Item);
         var hasCaliber = caliberKey != null && !string.IsNullOrEmpty(Plugin.GetCaliberFromConfig(caliberKey));
         
         if (hasCaliber)
         {
-            caption.enableWordWrapping = false;
             caption.overflowMode = TextOverflowModes.Overflow;
-            caption.rectTransform.sizeDelta = new Vector2(
-                caption.rectTransform.sizeDelta.x, 
-                _defaultSizeDeltaY + caption.fontSize);
+            caption.rectTransform.sizeDelta = new Vector2(caption.rectTransform.sizeDelta.x, 16f + caption.fontSize);
         }
         else
         {
-            caption.enableWordWrapping = false;
             caption.overflowMode = TextOverflowModes.Truncate;
-            caption.rectTransform.sizeDelta = new Vector2(
-                caption.rectTransform.sizeDelta.x, 
-                _defaultSizeDeltaY);
+            caption.rectTransform.sizeDelta = new Vector2(caption.rectTransform.sizeDelta.x, 16f);
         }
     }
 }
