@@ -54,39 +54,64 @@ public static class Settings
     public static ConfigEntry<bool> StripValueMarks;
     public static ConfigEntry<string> ValueMarksToStrip;
     public static ConfigEntry<Color> CaliberColor;
+    public static ConfigEntry<bool> SwapName;
     public static ConfigEntry<KeyboardShortcut> ShowNamesKeyBind;
     public static ConfigEntry<bool> EnableShowNamesInTrading;
+    public static ConfigEntry<bool> EnableCaliberSort;
+    public static ConfigEntry<AmmoSortMode> PrimarySort;
+    public static ConfigEntry<AmmoSortMode> SecondarySort;
+    public static ConfigEntry<AmmoSortDirection> PrimarySortDirection;
+    public static ConfigEntry<AmmoSortDirection> SecondarySortDirection;
     
     private static ConfigFile _config;
     
     private static readonly Dictionary<string, ConfigEntry<string>> CaliberConfigs = new();
     
     private static bool _checked;
-    
+
     public static void Init(ConfigFile config)
     {
         _config = config;
-        
+
         StripValueMarks = _config.Bind(
-            "1. General", "Remove Value Marks", false,
-            "Remove value marks (★☆●○) from item short names");
+            "1. General", "Remove value marks", false,
+            "Remove value marks (★☆●○) from ammo short names");
 
         ValueMarksToStrip = _config.Bind(
-            "1. General", "Value Marks", "★☆●○",
-            "Characters to strip from the beginning of item names");
+            "1. General", "Value marks", "★☆●○",
+            "Characters to strip from the beginning of ammo names");
 
         CaliberColor = _config.Bind(
-            "1. General", "Caliber Color", new Color(0.63f, 0.63f, 0.63f, 1f),
+            "1. General", "Caliber color", new Color(0.63f, 0.63f, 0.63f, 1f),
             "Color for the caliber text");
 
-        EnableShowNamesInTrading = _config.Bind("2. Item Names In Trading", "Enable Names In Trading", false, 
+        SwapName = _config.Bind(
+            "1. General", "Swap name", false, "Swap name with caliber");
+
+        EnableShowNamesInTrading = _config.Bind("2. Item Names In Trading", "Enable Names In Trading", true,
             "Hold a key to show item names instead of prices at traders");
-        
+
         ShowNamesKeyBind = _config.Bind(
-            "2. Item Names In Trading", "Show Names Key", new KeyboardShortcut(KeyCode.LeftAlt), 
-            "Keybind to show item names.");
+            "2. Item Names In Trading", "Show names keybind", new KeyboardShortcut(KeyCode.LeftAlt),
+            "Keybind to show item names");
+        
+        EnableCaliberSort = _config.Bind(
+            "3. Ammo Sorting", "Enable ammo sorting", true,
+            "Alternative comparator for ammo sorting");
+
+        PrimarySort = _config.Bind(
+            "3. Ammo Sorting", "Primary Sort", AmmoSortMode.Caliber);
+
+        PrimarySortDirection = _config.Bind(
+            "3. Ammo Sorting", "Primary sort direction", AmmoSortDirection.Ascending);
+        
+        SecondarySort = _config.Bind(
+            "3. Ammo Sorting", "Secondary Sort", AmmoSortMode.Count);
+        
+        SecondarySortDirection = _config.Bind(
+            "3. Ammo Sorting", "Secondary sort direction", AmmoSortDirection.Descending);
     }
-    
+
     public static void InitCalibers()
     {
         if (_checked) return;
@@ -105,7 +130,7 @@ public static class Settings
                 var caliberName = DefaultCaliberMap.GetValueOrDefault(caliberKey, "");
                 
                 CaliberConfigs[caliberKey] = _config.Bind(
-                    "3. Caliber Names", caliberKey, caliberName,
+                    "4. Caliber Names", caliberKey, caliberName,
                     $"Display name for {caliberKey}");
             }
         }
@@ -115,4 +140,19 @@ public static class Settings
     {
         return CaliberConfigs.TryGetValue(caliber, out var config) ? config.Value : "";
     }
+}
+
+public enum AmmoSortMode
+{
+    Caliber,
+    Alphabetical,
+    Count,
+    Rarity,
+    Damage
+}
+
+public enum AmmoSortDirection
+{
+    Ascending,
+    Descending
 }

@@ -31,28 +31,36 @@ public static class CaliberInShortNamePatch
         {
             if (__instance.GetType() != typeof(GridItemView) && __instance is not TradingItemView) return;
             if (__instance is TradingItemView && !Settings.EnableShowNamesInTrading.Value) return;
-
+            
+            var caption = (TextMeshProUGUI) CaptionField.GetValue(__instance);
+            if (caption == null) return;
+            
+            var maxWidth = ((RectTransform) __instance.transform).rect.width;
+            if (maxWidth <= 0f) return;
+            
             var caliber = GetCaliber(__instance.Item);
+            if (caliber != null) __result = RemoveMarks(__result);
+            
+            __result = TruncateToFit(caption, __result, maxWidth);
+            
             if (caliber == null) return;
 
             Settings.InitCalibers();
 
             var caliberName = Settings.GetCaliber(caliber);
             if (string.IsNullOrEmpty(caliberName)) return;
-
-            var caption = (TextMeshProUGUI) CaptionField.GetValue(__instance);
-            if (caption == null) return;
-
-            var maxWidth = ((RectTransform) __instance.transform).rect.width;
-            if (maxWidth <= 0f) return;
-
-            __result = RemoveMarks(__result);
-
-            var truncResult = TruncateToFit(caption, __result, maxWidth);
+            
             var truncCalName = TruncateToFit(caption, caliberName, maxWidth);
             var hexColor = $"#{ColorUtility.ToHtmlStringRGBA(Settings.CaliberColor.Value)}";
 
-            __result = $"{truncResult}\n<color={hexColor}>{truncCalName}</color>";
+            if (Settings.SwapName.Value)
+            {
+                __result = $"<color={hexColor}>{truncCalName}</color>\n{__result}";
+            }
+            else
+            {
+                __result = $"{__result}\n<color={hexColor}>{truncCalName}</color>";
+            }
         }
 
         private static string TruncateToFit(TextMeshProUGUI tmp, string text, float maxWidth)
