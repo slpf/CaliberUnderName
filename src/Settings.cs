@@ -148,7 +148,8 @@ public enum AmmoSortMode
     Alphabetical,
     Count,
     Rarity,
-    Damage
+    Damage,
+    Penetration
 }
 
 public enum AmmoSortDirection

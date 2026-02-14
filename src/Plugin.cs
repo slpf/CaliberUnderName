@@ -6,13 +6,13 @@ using CaliberUnderName.Patches;
 [assembly: AssemblyTitle("Caliber Under Name")]
 [assembly: AssemblyDescription("Adds a caliber label below the short name for ammo & ammo boxes")]
 [assembly: AssemblyCopyright("SLPF")]
-[assembly: AssemblyVersion("1.1.0")]
-[assembly: AssemblyFileVersion("1.1.0")]
-[assembly: AssemblyInformationalVersion("1.1.0")]
+[assembly: AssemblyVersion("1.1.1")]
+[assembly: AssemblyFileVersion("1.1.1")]
+[assembly: AssemblyInformationalVersion("1.1.1")]
 
 namespace CaliberUnderName;
 
-[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.1.0")]
+[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.1.1")]
 public class Plugin : BaseUnityPlugin
 {
     private void Awake()

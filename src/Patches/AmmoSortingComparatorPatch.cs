@@ -12,16 +12,16 @@ public class AmmoSortingComparatorPatch : ModulePatch
 {
     private static readonly Dictionary<string, int> RarityOrder = new()
     {
-        { "1090630", 0 },
-        { "13268011", 1 },
-        { "13246263", 2 },
-        { "16728140", 3 },
-        { "3800864", 4 },
-        { "16766732", 5 },
-        { "16183657", 6 },
-        { "10443483", 7 },
-        { "2528486", 8 },
-        { "16777227", 9 },
+        { "1090630", 9 },
+        { "13268011", 8 },
+        { "13246263", 7 },
+        { "16728140", 6 },
+        { "3800864", 5 },
+        { "16766732", 4 },
+        { "16183657", 3 },
+        { "10443483", 2 },
+        { "2528486", 1 },
+        { "16777227", 0 },
     };
     
     protected override MethodBase GetTargetMethod()
@@ -88,6 +88,7 @@ public class AmmoSortingComparatorPatch : ModulePatch
             AmmoSortMode.Count => GetAmmoCount(x).CompareTo(GetAmmoCount(y)),
             AmmoSortMode.Rarity => GetRarityOrder(x).CompareTo(GetRarityOrder(y)),
             AmmoSortMode.Damage => ammoX.Damage.CompareTo(ammoY.Damage),
+            AmmoSortMode.Penetration => ammoX.PenetrationPower.CompareTo(ammoY.PenetrationPower),
             _ => 0
         };
     }
