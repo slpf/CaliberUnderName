@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using CaliberUnderName.Patches;
 using Comfort.Common;
 using EFT.InventoryLogic;
 using UnityEngine;
@@ -50,6 +51,20 @@ public static class Settings
         { "Caliber9x33R", ".357" },
         { "Caliber9x39", "9x39" },
     };
+
+    private static readonly string[] DefaultRarityHex =
+    {
+        "#FFFFFF", // 0
+        "#2694da", // 1
+        "#9F5ACF", // 2
+        "#f6f15d", // 3
+        "#FFD700", // 4
+        "#39FF14", // 5
+        "#FF4040", // 6
+        "#ca1f2b", // 7
+        "#ca741f", // 8
+        "#10a43a", // 9
+    };
     
     public static ConfigEntry<bool> StripValueMarks;
     public static ConfigEntry<string> ValueMarksToStrip;
@@ -67,6 +82,7 @@ public static class Settings
     private static ConfigFile _config;
     
     private static readonly Dictionary<string, ConfigEntry<string>> CaliberConfigs = new();
+    public static ConfigEntry<Color>[] RarityColors = new ConfigEntry<Color>[10];
     
     private static bool _checked;
 
@@ -111,6 +127,18 @@ public static class Settings
         
         SecondarySortDirection = _config.Bind(
             "3. Ammo Sorting", "Secondary sort direction", AmmoSortDirection.Descending);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            RarityColors[i] = config.Bind("3. Ammo Sorting - Rarity Colors", $"{i}. Rarity color - rank {i + 1}",
+                HexToColor(DefaultRarityHex[i]),
+                new ConfigDescription(
+                    $"Background color for rarity rank {i + 1}",
+                    null,
+                    new ConfigurationManagerAttributes { IsAdvanced = true }));
+            
+            RarityColors[i].SettingChanged += (_, _) => AmmoSortingComparatorPatch.MarkRarityDirty();
+        }
     }
 
     public static void InitAmandsSense()
@@ -146,6 +174,12 @@ public static class Settings
     public static string GetCaliber(string caliber)
     {
         return CaliberConfigs.TryGetValue(caliber, out var config) ? config.Value : "";
+    }
+    
+    private static Color HexToColor(string hex)
+    {
+        ColorUtility.TryParseHtmlString(hex, out var c);
+        return c;
     }
 }
 

@@ -5,24 +5,16 @@ using System.Reflection;
 using EFT.InventoryLogic;
 using HarmonyLib;
 using SPT.Reflection.Patching;
+using UnityEngine;
 
 namespace CaliberUnderName.Patches;
 
 public class AmmoSortingComparatorPatch : ModulePatch
 {
-    private static readonly Dictionary<string, int> RarityOrder = new()
-    {
-        { "1090630", 9 },
-        { "13268011", 8 },
-        { "13246263", 7 },
-        { "16728140", 6 },
-        { "3800864", 5 },
-        { "16766732", 4 },
-        { "16183657", 3 },
-        { "10443483", 2 },
-        { "2528486", 1 },
-        { "16777227", 0 },
-    };
+    private static Dictionary<string, int> _rarityOrder;
+    private static bool _rarityDirty = true;
+
+    public static void MarkRarityDirty() => _rarityDirty = true;
     
     protected override MethodBase GetTargetMethod()
     {
@@ -95,6 +87,25 @@ public class AmmoSortingComparatorPatch : ModulePatch
     
     private static int GetRarityOrder(Item item)
     {
-        return RarityOrder.GetValueOrDefault(item.BackgroundColor.ToString(), 10);
+        return GetRarityOrder().GetValueOrDefault(item.BackgroundColor.ToString(), 10);
+    }
+    
+    private static Dictionary<string, int> GetRarityOrder()
+    {
+        if (!_rarityDirty && _rarityOrder != null) return _rarityOrder;
+
+        _rarityOrder = new Dictionary<string, int>(10);
+        for (int i = 0; i < 10; i++) _rarityOrder[ColorToKey(Settings.RarityColors[i].Value)] = i;
+
+        _rarityDirty = false;
+        return _rarityOrder;
+    }
+    
+    private static string ColorToKey(Color c)
+    {
+        int r = Mathf.RoundToInt(c.r * 255f);
+        int g = Mathf.RoundToInt(c.g * 255f);
+        int b = Mathf.RoundToInt(c.b * 255f);
+        return (r * 65536 + g * 256 + b + 12).ToString();
     }
 }
