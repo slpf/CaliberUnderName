@@ -55,6 +55,7 @@ public static class Settings
     public static ConfigEntry<string> ValueMarksToStrip;
     public static ConfigEntry<Color> CaliberColor;
     public static ConfigEntry<bool> SwapName;
+    public static ConfigEntry<bool> EnableCaliberInSense;
     public static ConfigEntry<KeyboardShortcut> ShowNamesKeyBind;
     public static ConfigEntry<bool> EnableShowNamesInTrading;
     public static ConfigEntry<bool> EnableCaliberSort;
@@ -112,6 +113,12 @@ public static class Settings
             "3. Ammo Sorting", "Secondary sort direction", AmmoSortDirection.Descending);
     }
 
+    public static void InitAmandsSense()
+    {
+        EnableCaliberInSense = _config.Bind("1. General", "AmandsSense", true,
+            "Show caliber for ammo in AmandsSense description");
+    }
+    
     public static void InitCalibers()
     {
         if (_checked) return;

@@ -13,6 +13,7 @@ using CaliberUnderName.Patches;
 namespace CaliberUnderName;
 
 [BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.1.1")]
+[BepInDependency("xyz.drakia.Sense", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
     private void Awake()
@@ -23,6 +24,12 @@ public class Plugin : BaseUnityPlugin
         TradingShowNamePatch.Enable();
         
         new AmmoSortingComparatorPatch().Enable();
+        
+        if (HarmonyLib.AccessTools.TypeByName("AmandsSense.Components.AmandsSenseItem") != null)
+        {
+            Settings.InitAmandsSense();
+            new AmandsSensePatch().Enable();
+        }
     }
     
     private void Update()
