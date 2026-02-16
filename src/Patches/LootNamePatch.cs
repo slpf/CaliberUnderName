@@ -20,6 +20,8 @@ public class LootNamePatch : ModulePatch
         var caliberKey = Helper.GetCaliber(rootItem);
         if (caliberKey == null) return;
         
+        lootItemName = lootItemName.Localized();
+        
         if (Settings.StripValueMarksInRaid.Value) lootItemName = Helper.RemoveMarks(lootItemName);
 
         var caliberName = Settings.GetCaliber(caliberKey);

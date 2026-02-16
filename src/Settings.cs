@@ -108,8 +108,12 @@ public static class Settings
             "1. General", "Swap name", false, "Swap name with caliber");
         
         EnableCaliberInLoot = _config.Bind(
-            "1. General - In Raid", "Show caliber in loot prompt", true,
+            "1. General - In Raid", "Caliber in loot prompt", true,
             "Show caliber when hovering over ammo in raid");
+        
+        StripValueMarksInRaid = _config.Bind(
+            "1. General - In Raid", "Remove value marks in raid", false,
+            "Remove value marks from ammo names in raid");
 
         EnableShowNamesInTrading = _config.Bind("2. Item Names In Trading", "Enable Names In Trading", true,
             "Hold a key to show item names instead of prices at traders");
@@ -117,10 +121,6 @@ public static class Settings
         ShowNamesKeyBind = _config.Bind(
             "2. Item Names In Trading", "Show names keybind", new KeyboardShortcut(KeyCode.LeftAlt),
             "Keybind to show item names");
-        
-        StripValueMarksInRaid = _config.Bind(
-            "1. General - In Raid", "Remove value marks in raid", false,
-            "Remove value marks from ammo names in raid");
         
         EnableCaliberSort = _config.Bind(
             "3. Ammo Sorting", "Enable ammo sorting", true,

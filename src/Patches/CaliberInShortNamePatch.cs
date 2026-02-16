@@ -37,7 +37,11 @@ public static class CaliberInShortNamePatch
             if (maxWidth <= 0f) return;
             
             var caliber = Helper.GetCaliber(__instance.Item);
-            if (caliber != null && Settings.StripValueMarks.Value) __result = Helper.RemoveMarks(__result);
+            if (caliber != null)
+            {
+                __result = Helper.StripAfter(__result, " - ");
+                if (Settings.StripValueMarks.Value) __result = Helper.RemoveMarks(__result);
+            }
             
             __result = TruncateToFit(caption, __result, maxWidth);
             
