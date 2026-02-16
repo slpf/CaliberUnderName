@@ -1,4 +1,5 @@
 using System.Reflection;
+using EFT.UI;
 using HarmonyLib;
 using SPT.Reflection.Patching;
 
@@ -8,7 +9,8 @@ public class InitCalibersInSettingsPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(typeof(EFT.UI.MenuScreen), nameof(EFT.UI.MenuScreen.Show));
+        return AccessTools.DeclaredMethod(typeof(MenuScreen), "Show", [typeof(MenuScreen).GetNestedType("GClass3877")
+        ]);
     }
 
     [PatchPostfix]
