@@ -104,7 +104,7 @@ public static class TradingShowNamePatch
             if (caption != null)
             {
                 caption.gameObject.SetActive(true);
-                var caliberKey = CaliberInShortNamePatch.GetCaliber(__instance.Item);
+                var caliberKey = Helper.GetCaliber(__instance.Item);
                 var hasCaliber = caliberKey != null && !string.IsNullOrEmpty(Settings.GetCaliber(caliberKey));
                 caption.overflowMode = hasCaliber ? TextOverflowModes.Overflow : TextOverflowModes.Truncate;
                 

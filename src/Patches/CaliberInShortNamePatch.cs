@@ -1,6 +1,4 @@
-using System.Linq;
 using System.Reflection;
-using EFT.InventoryLogic;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -38,15 +36,13 @@ public static class CaliberInShortNamePatch
             var maxWidth = ((RectTransform) __instance.transform).rect.width;
             if (maxWidth <= 0f) return;
             
-            var caliber = GetCaliber(__instance.Item);
-            if (caliber != null) __result = RemoveMarks(__result);
+            var caliber = Helper.GetCaliber(__instance.Item);
+            if (caliber != null && Settings.StripValueMarks.Value) __result = Helper.RemoveMarks(__result);
             
             __result = TruncateToFit(caption, __result, maxWidth);
             
             if (caliber == null) return;
-
-            Settings.InitCalibers();
-
+            
             var caliberName = Settings.GetCaliber(caliber);
             if (string.IsNullOrEmpty(caliberName)) return;
             
@@ -76,15 +72,6 @@ public static class CaliberInShortNamePatch
 
             return text[..1];
         }
-
-        private static string RemoveMarks(string text)
-        {
-            if (!Settings.StripValueMarks.Value || string.IsNullOrEmpty(text)) return text;
-
-            var marks = Settings.ValueMarksToStrip.Value;
-
-            return marks.Aggregate(text, (current, m) => current.Replace(m.ToString(), ""));
-        }
     }
     
     public class CaptionMaxLinesPatch : ModulePatch
@@ -101,12 +88,10 @@ public static class CaliberInShortNamePatch
         {
             if (__instance.GetType() != typeof(GridItemView)) return;
 
-            Settings.InitCalibers();
-
             var caption = (TextMeshProUGUI)CaptionField.GetValue(__instance);
             if (caption == null) return;
 
-            var caliberKey = GetCaliber(__instance.Item);
+            var caliberKey = Helper.GetCaliber(__instance.Item);
             var hasCaliber = caliberKey != null && !string.IsNullOrEmpty(Settings.GetCaliber(caliberKey));
 
             if (hasCaliber)
@@ -122,17 +107,5 @@ public static class CaliberInShortNamePatch
         }
     }
     
-    public static string GetCaliber(Item item)
-    {
-        if (item is AmmoItemClass ammo)
-            return ammo.AmmoTemplate.Caliber;
-
-        if (item is AmmoBox ammoBox)
-        {
-            var first = ammoBox.Cartridges?.Items?.FirstOrDefault() as AmmoItemClass;
-            return first?.AmmoTemplate.Caliber;
-        }
-
-        return null;
-    }
+    
 }

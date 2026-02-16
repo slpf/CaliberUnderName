@@ -71,6 +71,8 @@ public static class Settings
     public static ConfigEntry<Color> CaliberColor;
     public static ConfigEntry<bool> SwapName;
     public static ConfigEntry<bool> EnableCaliberInSense;
+    public static ConfigEntry<bool> EnableCaliberInLoot;
+    public static ConfigEntry<bool> StripValueMarksInRaid;
     public static ConfigEntry<KeyboardShortcut> ShowNamesKeyBind;
     public static ConfigEntry<bool> EnableShowNamesInTrading;
     public static ConfigEntry<bool> EnableCaliberSort;
@@ -104,6 +106,10 @@ public static class Settings
 
         SwapName = _config.Bind(
             "1. General", "Swap name", false, "Swap name with caliber");
+        
+        EnableCaliberInLoot = _config.Bind(
+            "1. General - In Raid", "Show caliber in loot prompt", true,
+            "Show caliber when hovering over ammo in raid");
 
         EnableShowNamesInTrading = _config.Bind("2. Item Names In Trading", "Enable Names In Trading", true,
             "Hold a key to show item names instead of prices at traders");
@@ -111,6 +117,10 @@ public static class Settings
         ShowNamesKeyBind = _config.Bind(
             "2. Item Names In Trading", "Show names keybind", new KeyboardShortcut(KeyCode.LeftAlt),
             "Keybind to show item names");
+        
+        StripValueMarksInRaid = _config.Bind(
+            "1. General - In Raid", "Remove value marks in raid", false,
+            "Remove value marks from ammo names in raid");
         
         EnableCaliberSort = _config.Bind(
             "3. Ammo Sorting", "Enable ammo sorting", true,
@@ -143,7 +153,7 @@ public static class Settings
 
     public static void InitAmandsSense()
     {
-        EnableCaliberInSense = _config.Bind("1. General", "AmandsSense", true,
+        EnableCaliberInSense = _config.Bind("1. General - In Raid", "AmandsSense", true,
             "Show caliber for ammo in AmandsSense description");
     }
     

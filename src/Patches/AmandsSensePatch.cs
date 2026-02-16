@@ -1,6 +1,5 @@
 using System.Reflection;
 using EFT.Interactive;
-using EFT.InventoryLogic;
 using HarmonyLib;
 using SPT.Reflection.Patching;
 using TMPro;
@@ -9,9 +8,11 @@ namespace CaliberUnderName.Patches;
 
 public class AmandsSensePatch : ModulePatch
 {
-    private static FieldInfo _observedLootItemField = AccessTools.Field(
+    private static readonly FieldInfo _observedLootItemField = AccessTools.Field(
         AccessTools.TypeByName("AmandsSense.Components.AmandsSenseItem"), "observedLootItem");
-    private static FieldInfo _descriptionTextField = AccessTools.Field(
+    private static readonly FieldInfo _nameTextField = AccessTools.Field(
+        AccessTools.TypeByName("AmandsSense.Components.AmandsSenseConstructor"),"nameText");
+    private static readonly FieldInfo _descriptionTextField = AccessTools.Field(
         AccessTools.TypeByName("AmandsSense.Components.AmandsSenseConstructor"), "descriptionText");
     
     protected override MethodBase GetTargetMethod()
@@ -27,11 +28,16 @@ public class AmandsSensePatch : ModulePatch
 
         var lootItem = _observedLootItemField.GetValue(__instance) as ObservedLootItem;
         if (lootItem?.Item == null) return;
-
-        if (lootItem.Item is AmmoBox) return;
         
-        var caliberKey = CaliberInShortNamePatch.GetCaliber(lootItem.Item);
+        var caliberKey = Helper.GetCaliber(lootItem.Item);
         if (caliberKey == null) return;
+        
+        var nameText = _nameTextField.GetValue(__instance) as TextMeshPro;
+
+        if (nameText != null)
+        {
+            nameText.text = CleanSenseName(nameText.text);
+        }
 
         var caliberName = Settings.GetCaliber(caliberKey);
         if (string.IsNullOrEmpty(caliberName)) return;
@@ -43,4 +49,11 @@ public class AmandsSensePatch : ModulePatch
         
     }
     
+    private static string CleanSenseName(string text)
+    {
+        string raw = text.Replace("<b>", "").Replace("</b>", "");
+        raw = Helper.StripAfter(raw, " - ");
+        if (Settings.StripValueMarksInRaid.Value) raw = Helper.RemoveMarks(raw);
+        return "<b>" + raw + "</b>";
+    }
 }
