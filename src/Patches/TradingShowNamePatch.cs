@@ -14,8 +14,8 @@ public static class TradingShowNamePatch
 {
     internal static bool InTraderScreen = false;
     internal static bool KeyHeld = false;
-    
-    internal static TraderDealScreen DealScreen;
+
+    private static TraderDealScreen _dealScreen;
 
     private static readonly FieldInfo TraderGridField = AccessTools.Field(typeof(TraderDealScreen), "_traderGridView");
     private static readonly FieldInfo StashGridField = AccessTools.Field(typeof(TraderDealScreen), "_stashGridView");
@@ -30,10 +30,10 @@ public static class TradingShowNamePatch
     
     public static void UpdateTradingViews()
     {
-        if (DealScreen == null) return;
+        if (_dealScreen == null) return;
 
-        UpdateGrid(TraderGridField.GetValue(DealScreen));
-        UpdateGrid(StashGridField.GetValue(DealScreen));
+        UpdateGrid(TraderGridField.GetValue(_dealScreen));
+        UpdateGrid(StashGridField.GetValue(_dealScreen));
     }
 
     private static void UpdateGrid(object gridView)
@@ -59,7 +59,7 @@ public static class TradingShowNamePatch
         public static void Postfix(TraderDealScreen __instance)
         {
             InTraderScreen = true;
-            DealScreen = __instance;
+            _dealScreen = __instance;
         } 
     }
 
@@ -75,7 +75,7 @@ public static class TradingShowNamePatch
         {
             InTraderScreen = false;
             KeyHeld = false;
-            DealScreen = null;
+            _dealScreen = null;
         }
     }
     

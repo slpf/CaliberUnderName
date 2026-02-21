@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using EFT.InventoryLogic;
 using HarmonyLib;
@@ -24,49 +23,24 @@ public class AmmoSortingComparatorPatch : ModulePatch
     [PatchPrefix]
     public static bool Prefix(Item x, Item y, ref int __result)
     {
-        if (!Settings.EnableCaliberSort.Value) return true;
+        if (!Settings.EnableAmmoSort.Value) return true;
 
         var ammoX = GetAmmoTemplate(x);
         var ammoY = GetAmmoTemplate(y);
         
         if (ammoX == null || ammoY == null) return true;
+        
+        var primarySort = Settings.PrimarySort.Value;
+        var primaryDir = Settings.PrimarySortDirection.Value;
+        var secondarySort = Settings.SecondarySort.Value;
+        var secondaryDir = Settings.SecondarySortDirection.Value;
 
-        int num = ApplyDirection(CompareBy(Settings.PrimarySort.Value, x, y, ammoX, ammoY), Settings.PrimarySortDirection.Value);
-        if (num == 0) num = ApplyDirection(CompareBy(Settings.SecondarySort.Value, x, y, ammoX, ammoY), Settings.SecondarySortDirection.Value);
+        var num = ApplyDirection(CompareBy(primarySort, x, y, ammoX, ammoY), primaryDir);
+        if (num == 0) num = ApplyDirection(CompareBy(secondarySort, x, y, ammoX, ammoY), secondaryDir);
         if (num == 0) num = string.Compare(x.ShortName.Localized(), y.ShortName.Localized(), StringComparison.OrdinalIgnoreCase);
 
         __result = num;
         return __result == 0;
-    }
-    
-    private static AmmoTemplate GetAmmoTemplate(Item item)
-    {
-        if (item is AmmoItemClass ammo)
-            return ammo.AmmoTemplate;
-
-        if (item is AmmoBox box)
-        {
-            var first = box.Cartridges?.Items?.FirstOrDefault() as AmmoItemClass;
-            return first?.AmmoTemplate;
-        }
-
-        return null;
-    }
-    
-    private static int GetAmmoCount(Item item)
-    {
-        if (item is AmmoItemClass)
-            return item.StackObjectsCount;
-
-        if (item is AmmoBox box)
-            return box.Cartridges?.Items?.Sum(i => i.StackObjectsCount) ?? 0;
-
-        return 0;
-    }
-    
-    private static int ApplyDirection(int result, AmmoSortDirection direction)
-    {
-        return direction == AmmoSortDirection.Descending ? -result : result;
     }
     
     private static int CompareBy(AmmoSortMode mode, Item x, Item y, AmmoTemplate ammoX, AmmoTemplate ammoY)
@@ -85,27 +59,69 @@ public class AmmoSortingComparatorPatch : ModulePatch
         };
     }
     
-    private static int GetRarityOrder(Item item)
+    private static int ApplyDirection(int result, AmmoSortDirection direction)
     {
-        return GetRarityOrder().GetValueOrDefault(item.BackgroundColor.ToString(), 10);
+        return direction == AmmoSortDirection.Descending ? -result : result;
     }
     
-    private static Dictionary<string, int> GetRarityOrder()
+    private static AmmoTemplate GetAmmoTemplate(Item item)
     {
-        if (!_rarityDirty && _rarityOrder != null) return _rarityOrder;
+        if (item is AmmoItemClass ammo) return ammo.AmmoTemplate;
 
-        _rarityOrder = new Dictionary<string, int>(10);
-        for (int i = 0; i < 10; i++) _rarityOrder[ColorToKey(Settings.RarityColors[i].Value)] = i;
+        if (item is AmmoBox box)
+        {
+            var cartridges = box.Cartridges?.Items;
+            if (cartridges == null) return null;
+
+            foreach (var cartridge in cartridges)
+            {
+                if (cartridge is AmmoItemClass a) return a.AmmoTemplate;
+            }
+        }
+
+        return null;
+    }
+    
+    private static int GetAmmoCount(Item item)
+    {
+        if (item is AmmoItemClass) return item.StackObjectsCount;
+
+        if (item is AmmoBox box)
+        {
+            var cartridges = box.Cartridges?.Items;
+            if (cartridges == null) return 0;
+
+            var total = 0;
+            foreach (var cartridge in cartridges) total += cartridge.StackObjectsCount;
+            return total;
+        }
+
+        return 0;
+    }
+    
+    private static int GetRarityOrder(Item item)
+    {
+        EnsureRarityOrder();
+        return _rarityOrder.GetValueOrDefault(item.BackgroundColor.ToString(), 10);
+    }
+    
+    private static void EnsureRarityOrder()
+    {
+        if (!_rarityDirty && _rarityOrder != null) return;
+
+        _rarityOrder ??= new Dictionary<string, int>(10);
+        _rarityOrder.Clear();
+        
+        for (var i = 0; i < 10; i++) _rarityOrder[ColorToKey(Settings.RarityColors[i].Value)] = i;
 
         _rarityDirty = false;
-        return _rarityOrder;
     }
     
     private static string ColorToKey(Color c)
     {
-        int r = Mathf.RoundToInt(c.r * 255f);
-        int g = Mathf.RoundToInt(c.g * 255f);
-        int b = Mathf.RoundToInt(c.b * 255f);
+        var r = Mathf.RoundToInt(c.r * 255f);
+        var g = Mathf.RoundToInt(c.g * 255f);
+        var b = Mathf.RoundToInt(c.b * 255f);
         return (r * 65536 + g * 256 + b + 12).ToString();
     }
 }

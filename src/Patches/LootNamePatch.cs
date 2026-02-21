@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using EFT.InventoryLogic;
 using HarmonyLib;
@@ -24,7 +25,10 @@ public class LootNamePatch : ModulePatch
         
         if (Settings.StripValueMarksInRaid.Value) lootItemName = Helper.RemoveMarks(lootItemName);
 
-        var caliberName = Settings.GetCaliber(caliberKey);
+        var caliberName = string.Join(" / ", caliberKey.Split('/')
+            .Select(Settings.GetCaliber)
+            .Where(n => !string.IsNullOrEmpty(n)));
+        
         if (string.IsNullOrEmpty(caliberName)) return;
 
         lootItemName = $"{Helper.StripAfter(lootItemName, " - ")} - {caliberName}";

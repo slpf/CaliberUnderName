@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using EFT.Interactive;
 using HarmonyLib;
@@ -39,19 +40,21 @@ public class AmandsSensePatch : ModulePatch
             nameText.text = CleanSenseName(nameText.text);
         }
 
-        var caliberName = Settings.GetCaliber(caliberKey);
+        var caliberName = string.Join(" / ", caliberKey.Split('/')
+            .Select(Settings.GetCaliber)
+            .Where(n => !string.IsNullOrEmpty(n)));
+        
         if (string.IsNullOrEmpty(caliberName)) return;
 
         var descText = _descriptionTextField.GetValue(__instance) as TextMeshPro;
         if (descText == null) return;
 
-        if (string.IsNullOrEmpty(descText.text)) descText.text = caliberName;
-        
+        descText.text = string.IsNullOrEmpty(descText.text) ? caliberName : $"{descText.text} - {caliberName}";
     }
     
     private static string CleanSenseName(string text)
     {
-        string raw = text.Replace("<b>", "").Replace("</b>", "");
+        var raw = text.Replace("<b>", "").Replace("</b>", "");
         raw = Helper.StripAfter(raw, " - ");
         if (Settings.StripValueMarksInRaid.Value) raw = Helper.RemoveMarks(raw);
         return "<b>" + raw + "</b>";

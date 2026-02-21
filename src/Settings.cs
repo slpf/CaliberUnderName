@@ -65,82 +65,96 @@ public static class Settings
         "#ca741f", // 8
         "#10a43a", // 9
     };
+
+    private const string CategoryToggles = "0. Toggles";
+    private const string CategoryGeneral = "1. General";
+    private const string CategoryInTrading = "2. Item Names In Trading";
+    private const string CategoryAmmoSorting = "3. Ammo Sorting";
+    private const string CategoryRarityColor = "3. Ammo Sorting - Rarity Colors";
+    private const string CategoryCaliberNames = "4. Caliber Names";
+    
+    public static ConfigEntry<bool> EnableAmmo;
+    public static ConfigEntry<bool> EnableAmmoBoxes;
+    public static ConfigEntry<bool> EnableMagazines;
+    public static ConfigEntry<bool> EnableWeapons;
+    public static ConfigEntry<bool> EnableCaliberInSense;
+    public static ConfigEntry<bool> EnableCaliberInLoot;
+    public static ConfigEntry<bool> EnableShowNamesInTrading;
+    public static ConfigEntry<bool> EnableAmmoSort;
     
     public static ConfigEntry<bool> StripValueMarks;
+    public static ConfigEntry<bool> StripValueMarksInRaid;
     public static ConfigEntry<string> ValueMarksToStrip;
     public static ConfigEntry<Color> CaliberColor;
     public static ConfigEntry<bool> SwapName;
-    public static ConfigEntry<bool> EnableCaliberInSense;
-    public static ConfigEntry<bool> EnableCaliberInLoot;
-    public static ConfigEntry<bool> StripValueMarksInRaid;
+    
     public static ConfigEntry<KeyboardShortcut> ShowNamesKeyBind;
-    public static ConfigEntry<bool> EnableShowNamesInTrading;
-    public static ConfigEntry<bool> EnableCaliberSort;
+    
     public static ConfigEntry<AmmoSortMode> PrimarySort;
     public static ConfigEntry<AmmoSortMode> SecondarySort;
     public static ConfigEntry<AmmoSortDirection> PrimarySortDirection;
     public static ConfigEntry<AmmoSortDirection> SecondarySortDirection;
     
-    private static ConfigFile _config;
-    
     private static readonly Dictionary<string, ConfigEntry<string>> CaliberConfigs = new();
-    public static ConfigEntry<Color>[] RarityColors = new ConfigEntry<Color>[10];
+    public static readonly ConfigEntry<Color>[] RarityColors = new ConfigEntry<Color>[10];
     
-    private static bool _checked;
+    private static ConfigFile _config;
 
     public static void Init(ConfigFile config)
     {
         _config = config;
 
-        StripValueMarks = _config.Bind(
-            "1. General", "Remove value marks", false,
+        EnableAmmo = _config.Bind(CategoryToggles, "Enable caliber on ammo", true,
+            "Add caliber values to the ammo short name.");
+
+        EnableAmmoBoxes = _config.Bind(CategoryToggles, "Enable caliber on ammo boxes", true,
+            "Add caliber values to the ammo boxes short name.");
+        
+        EnableMagazines = _config.Bind(CategoryToggles, "Enable caliber on magazines", true,
+            "Add caliber values to the magazines short name.");
+        
+        EnableWeapons = _config.Bind(CategoryToggles, "Enable caliber on weapons", true, 
+            "Replace the default caliber values on weapons with the values from the mod.");
+        
+        EnableCaliberInLoot = _config.Bind(CategoryToggles, "Enable caliber on in-raid loot", true,
+            "Display caliber when hovering over loot in raid");
+        
+        EnableAmmoSort = _config.Bind(CategoryToggles, "Enable ammo & ammo boxes sorting", true,
+            "Alternative comparator for ammo sorting");
+        
+        EnableShowNamesInTrading = _config.Bind(CategoryToggles, "Enable names in trading", true,
+            "Hold a key to show item names instead of prices at traders");
+        
+        StripValueMarks = _config.Bind(CategoryGeneral, "Remove value marks", false,
             "Remove value marks (★☆●○) from ammo short names");
-
-        ValueMarksToStrip = _config.Bind(
-            "1. General", "Value marks", "★☆●○",
-            "Characters to strip from the beginning of ammo names");
-
-        CaliberColor = _config.Bind(
-            "1. General", "Caliber color", new Color(0.63f, 0.63f, 0.63f, 1f),
-            "Color for the caliber text");
-
-        SwapName = _config.Bind(
-            "1. General", "Swap name", false, "Swap name with caliber");
         
-        EnableCaliberInLoot = _config.Bind(
-            "1. General - In Raid", "Caliber in loot prompt", true,
-            "Show caliber when hovering over ammo in raid");
-        
-        StripValueMarksInRaid = _config.Bind(
-            "1. General - In Raid", "Remove value marks in raid", false,
+        StripValueMarksInRaid = _config.Bind(CategoryGeneral, "Remove value marks in raid", false,
             "Remove value marks from ammo names in raid");
 
-        EnableShowNamesInTrading = _config.Bind("2. Item Names In Trading", "Enable Names In Trading", true,
-            "Hold a key to show item names instead of prices at traders");
+        ValueMarksToStrip = _config.Bind(CategoryGeneral, "Value marks", "★☆●○",
+            "Characters to strip from the beginning of ammo names");
 
-        ShowNamesKeyBind = _config.Bind(
-            "2. Item Names In Trading", "Show names keybind", new KeyboardShortcut(KeyCode.LeftAlt),
+        CaliberColor = _config.Bind(CategoryGeneral, "Caliber color", 
+            new Color(0.63f, 0.63f, 0.63f, 1f),
+            "Color for the caliber text in ammo");
+
+        SwapName = _config.Bind(CategoryGeneral, "Swap name", false, 
+            "Swap name with caliber");
+        
+        ShowNamesKeyBind = _config.Bind(CategoryInTrading, "Show names keybind", new KeyboardShortcut(KeyCode.LeftAlt),
             "Keybind to show item names");
         
-        EnableCaliberSort = _config.Bind(
-            "3. Ammo Sorting", "Enable ammo sorting", true,
-            "Alternative comparator for ammo sorting");
+        PrimarySort = _config.Bind(CategoryAmmoSorting, "Primary Sort", AmmoSortMode.Caliber);
 
-        PrimarySort = _config.Bind(
-            "3. Ammo Sorting", "Primary Sort", AmmoSortMode.Caliber);
-
-        PrimarySortDirection = _config.Bind(
-            "3. Ammo Sorting", "Primary sort direction", AmmoSortDirection.Ascending);
+        PrimarySortDirection = _config.Bind(CategoryAmmoSorting, "Primary sort direction", AmmoSortDirection.Ascending);
         
-        SecondarySort = _config.Bind(
-            "3. Ammo Sorting", "Secondary Sort", AmmoSortMode.Count);
+        SecondarySort = _config.Bind(CategoryAmmoSorting, "Secondary Sort", AmmoSortMode.Count);
         
-        SecondarySortDirection = _config.Bind(
-            "3. Ammo Sorting", "Secondary sort direction", AmmoSortDirection.Descending);
+        SecondarySortDirection = _config.Bind(CategoryAmmoSorting, "Secondary sort direction", AmmoSortDirection.Descending);
         
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
-            RarityColors[i] = config.Bind("3. Ammo Sorting - Rarity Colors", $"{i}. Rarity color - rank {i + 1}",
+            RarityColors[i] = config.Bind(CategoryRarityColor, $"{i}. Rarity color - rank {i + 1}",
                 HexToColor(DefaultRarityHex[i]),
                 new ConfigDescription(
                     $"Background color for rarity rank {i + 1}",
@@ -153,18 +167,13 @@ public static class Settings
 
     public static void InitAmandsSense()
     {
-        EnableCaliberInSense = _config.Bind("1. General - In Raid", "AmandsSense", true,
+        EnableCaliberInSense = _config.Bind(CategoryToggles, "Enable caliber with AmandsSense", true,
             "Show caliber for ammo in AmandsSense description");
     }
     
     public static void InitCalibers()
     {
-        if (_checked) return;
-        
-        _checked = true;
-
         var factory = Singleton<ItemFactoryClass>.Instance;
-        
         if (factory == null) return;
         
         foreach (var kvp in factory.ItemTemplates)
@@ -175,7 +184,7 @@ public static class Settings
                 var caliberName = DefaultCaliberMap.GetValueOrDefault(caliberKey, "");
                 
                 CaliberConfigs[caliberKey] = _config.Bind(
-                    "4. Caliber Names", caliberKey, caliberName,
+                    CategoryCaliberNames, caliberKey, caliberName,
                     $"Display name for {caliberKey}");
             }
         }
