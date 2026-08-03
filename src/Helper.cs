@@ -11,18 +11,18 @@ public static class Helper
     
     public static string GetCaliber(Item item)
     {
-        if (item is AmmoItemClass ammo && Settings.EnableAmmo.Value)
+        if (item is Ammo ammo && Settings.EnableAmmo.Value)
         {
             return ammo.AmmoTemplate.Caliber;
         }
 
         if (item is AmmoBox ammoBox && Settings.EnableAmmoBoxes.Value)
         {
-            var first = ammoBox.Cartridges?.Items?.FirstOrDefault() as AmmoItemClass;
+            var first = ammoBox.Cartridges?.Items?.FirstOrDefault() as Ammo;
             return first?.AmmoTemplate.Caliber;
         }
-        
-        if (item is MagazineItemClass magazine && Settings.EnableMagazines.Value)
+
+        if (item is Magazine magazine && Settings.EnableMagazines.Value)
         {
             return MagCaliberCache.GetValueOrDefault(magazine.TemplateId.ToString());
         }

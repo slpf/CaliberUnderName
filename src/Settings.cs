@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BepInEx.Configuration;
 using CaliberUnderName.Patches;
 using Comfort.Common;
+using EFT;
 using EFT.InventoryLogic;
 using UnityEngine;
 
@@ -173,7 +174,7 @@ public static class Settings
     
     public static void InitCalibers()
     {
-        var factory = Singleton<ItemFactoryClass>.Instance;
+        var factory = Singleton<ItemFactory>.Instance;
         if (factory == null) return;
         
         foreach (var kvp in factory.ItemTemplates)

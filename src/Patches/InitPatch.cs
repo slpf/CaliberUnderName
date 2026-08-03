@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Comfort.Common;
+using EFT;
 using EFT.InventoryLogic;
 using EFT.UI;
 using HarmonyLib;
@@ -15,7 +16,7 @@ public class InitPatch : ModulePatch
     
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.DeclaredMethod(typeof(MenuScreen), "Show", [typeof(MenuScreen).GetNestedType("GClass3877")]);
+        return AccessTools.DeclaredMethod(typeof(MenuScreen), "Show", [typeof(MenuScreen).GetNestedType("MainMenuBaseScreenController")]);
     }
 
     [PatchPostfix]
@@ -31,7 +32,7 @@ public class InitPatch : ModulePatch
 
     private static void InitMagazines()
     {
-        var factory = Singleton<ItemFactoryClass>.Instance;
+        var factory = Singleton<ItemFactory>.Instance;
         if (factory == null) return;
 
         var calibers = new HashSet<string>();
@@ -40,20 +41,24 @@ public class InitPatch : ModulePatch
         {
             try
             {
-                if (kvp.Value is not MagazineTemplateClass mag) continue;
+                if (kvp.Value is not MagazineTemplate mag) continue;
 
                 calibers.Clear();
-                var filters = mag.Cartridges[0].Filters;
+                var cartridges = mag.Cartridges;
+                if (cartridges == null || cartridges.Length == 0) continue;
+
+                var filters = cartridges[0]?.Filters;
+                if (filters == null) continue;
 
                 for (var i = 0; i < filters.Length; i++)
                 {
-                    var filter = filters[i];
-                    if (filter?.Filter == null) continue;
+                    var allowed = filters[i]?.Filter;
+                    if (allowed == null) continue;
 
-                    for (var j = 0; j < filter.Filter.Length; j++)
+                    for (var j = 0; j < allowed.Length; j++)
                     {
-                        var id = filter.Filter[j].ToString();
-                        if (factory.ItemTemplates.TryGetValue(id, out var template) && template is AmmoTemplate ammoTemplate)
+                        if (!factory.ItemTemplates.TryGetValue(allowed[j].ToString(), out var template)) continue;
+                        if (template is AmmoTemplate ammoTemplate && !string.IsNullOrEmpty(ammoTemplate.Caliber))
                         {
                             calibers.Add(ammoTemplate.Caliber);
                         }

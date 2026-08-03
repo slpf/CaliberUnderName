@@ -22,7 +22,7 @@ public static class CaliberInNamePatch
 
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GridItemView), "method_27");
+            return AccessTools.Method(typeof(GridItemView), "ItemShortName");
         }
 
         [PatchPostfix]
@@ -93,7 +93,7 @@ public static class CaliberInNamePatch
 
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GridItemView), "method_28");
+            return AccessTools.Method(typeof(GridItemView), "UpdateItemName");
         }
 
         [PatchPostfix]

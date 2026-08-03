@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using EFT;
 using EFT.InventoryLogic;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -17,7 +18,7 @@ public class AmmoSortingComparatorPatch : ModulePatch
     
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(AccessTools.TypeByName("GClass3381+Class2438"), "Compare");
+        return AccessTools.Method(typeof(ItemSorter.ItemSortingComparer), "Compare");
     }
     
     [PatchPrefix]
@@ -66,7 +67,7 @@ public class AmmoSortingComparatorPatch : ModulePatch
     
     private static AmmoTemplate GetAmmoTemplate(Item item)
     {
-        if (item is AmmoItemClass ammo) return ammo.AmmoTemplate;
+        if (item is Ammo ammo) return ammo.AmmoTemplate;
 
         if (item is AmmoBox box)
         {
@@ -75,7 +76,7 @@ public class AmmoSortingComparatorPatch : ModulePatch
 
             foreach (var cartridge in cartridges)
             {
-                if (cartridge is AmmoItemClass a) return a.AmmoTemplate;
+                if (cartridge is Ammo a) return a.AmmoTemplate;
             }
         }
 
@@ -84,7 +85,7 @@ public class AmmoSortingComparatorPatch : ModulePatch
     
     private static int GetAmmoCount(Item item)
     {
-        if (item is AmmoItemClass) return item.StackObjectsCount;
+        if (item is Ammo) return item.StackObjectsCount;
 
         if (item is AmmoBox box)
         {

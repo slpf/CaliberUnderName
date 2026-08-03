@@ -19,7 +19,6 @@ public static class TradingShowNamePatch
 
     private static readonly FieldInfo TraderGridField = AccessTools.Field(typeof(TraderDealScreen), "_traderGridView");
     private static readonly FieldInfo StashGridField = AccessTools.Field(typeof(TraderDealScreen), "_stashGridView");
-    private static readonly FieldInfo ItemViewsField = AccessTools.Field(typeof(GridView), "ItemViews");
 
     public static void Enable()
     {
@@ -38,11 +37,9 @@ public static class TradingShowNamePatch
 
     private static void UpdateGrid(object gridView)
     {
-        if (gridView == null) return;
-        var dict = (Dictionary<string, ItemView>) ItemViewsField.GetValue(gridView);
-        if (dict == null) return;
+        if (gridView is not GridView grid) return;
 
-        foreach (var view in dict.Values)
+        foreach (var view in grid.GridItemViews)
         {
             if (view is TradingItemView tradingView) tradingView.UpdateInfo();
         }

@@ -1,1 +1,1 @@
-Adds a caliber label below the short name for ammo. SPT 4.0.0+.
+Adds a caliber label below the short name for ammo. SPT 4.1.0+.

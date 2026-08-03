@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Reflection;
+using EFT;
 using EFT.InventoryLogic;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -10,7 +11,7 @@ public class LootNamePatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(typeof(GetActionsClass), "smethod_9");
+        return AccessTools.Method(typeof(InteractionContextHelper), "GetAvailableInteractionState");
     }
     
     [PatchPrefix]
