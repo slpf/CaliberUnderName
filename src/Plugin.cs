@@ -7,13 +7,13 @@ using CaliberUnderName.Patches;
 [assembly: AssemblyTitle("Caliber Under Name")]
 [assembly: AssemblyDescription("Adds a caliber label below the short name for ammo & ammo boxes")]
 [assembly: AssemblyCopyright("SLPF")]
-[assembly: AssemblyVersion("1.1.4")]
-[assembly: AssemblyFileVersion("1.1.4")]
-[assembly: AssemblyInformationalVersion("1.1.4")]
+[assembly: AssemblyVersion("1.2.0")]
+[assembly: AssemblyFileVersion("1.2.0")]
+[assembly: AssemblyInformationalVersion("1.2.0")]
 
 namespace CaliberUnderName;
 
-[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.1.4")]
+[BepInPlugin("com.slpf.caliberundername", "CaliberUnderName", "1.2.0")]
 [BepInDependency("xyz.drakia.Sense", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
